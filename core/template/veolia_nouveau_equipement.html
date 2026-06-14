@@ -1,0 +1,63 @@
+<!-- core/template/veolia_nouveau_equipement.html -->
+<!--
+  Snippet to add into the equipment configuration template for the plugin.
+  Place the fields in the equipment form area (e.g. inside the eqLogic edit modal).
+-->
+<div class="form-group">
+  <label class="col-sm-3 control-label">Service</label>
+  <div class="col-sm-9">
+    <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="type_service">
+      <option value="veolia">Veolia (ancien)</option>
+      <option value="veolia_nouveau">Veolia nouveau</option>
+    </select>
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label">Username (Veolia)</label>
+  <div class="col-sm-9">
+    <input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="username" placeholder="ex: john.doe@example.com" />
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label">Password</label>
+  <div class="col-sm-9">
+    <input type="password" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="password" placeholder="mot de passe Veolia" />
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label">Cognito ClientId</label>
+  <div class="col-sm-9">
+    <input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="client_id" placeholder="Cognito App client id" />
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label">Contract ID</label>
+  <div class="col-sm-9">
+    <input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="contract_id" placeholder="ex: 3026534" />
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label">Numero PDS</label>
+  <div class="col-sm-9">
+    <input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numero_pds" placeholder="ex: 002OBM8" />
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label">Date début abonnement</label>
+  <div class="col-sm-9">
+    <input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="date_debut" placeholder="YYYY-MM-DD" />
+  </div>
+</div>
+
+<div class="form-group">
+  <div class="col-sm-offset-3 col-sm-9">
+    <button type="button" id="btn_test_veolia_nouveau" class="btn btn-default">Tester la connexion et importer</button>
+    <span id="veolia_nouveau_test_result" style="margin-left:10px"></span>
+  </div>
+</div>
