@@ -1,6 +1,5 @@
 <?php
-// core/class/VeoliaNouveauAuth.php
-// Handles authentication against AWS Cognito used by the Veolia new site.
+// Updated VeoliaNouveauAuth with RespondToAuthChallenge support
 
 class VeoliaNouveauAuth
 {
@@ -12,10 +11,6 @@ class VeoliaNouveauAuth
         $this->cognitoEndpoint = sprintf('https://cognito-idp.%s.amazonaws.com/', $this->region);
     }
 
-    /**
-     * Initiate USER_PASSWORD_AUTH and return token data array or false on error.
-     * $clientId must be provided (Cognito App client id).
-     */
     public function initiateAuth(string $username, string $password, string $clientId): array|false
     {
         $url = $this->cognitoEndpoint;
@@ -32,15 +27,10 @@ class VeoliaNouveauAuth
         if ($resp === false) return false;
         $data = json_decode($resp, true);
         if (!is_array($data)) return false;
-        // expected keys: AuthenticationResult -> AccessToken, RefreshToken, ExpiresIn, IdToken
-        if (isset($data['AuthenticationResult'])) return $data['AuthenticationResult'];
-        // In some flows, a challenge may be required (MFA). Return the raw response so caller can inspect.
+        // return full response so caller can handle challenges
         return $data;
     }
 
-    /**
-     * Refresh an access token using a refresh token. Returns AuthenticationResult on success.
-     */
     public function refreshToken(string $refreshToken, string $clientId): array|false
     {
         $url = $this->cognitoEndpoint;
@@ -55,7 +45,28 @@ class VeoliaNouveauAuth
         if ($resp === false) return false;
         $data = json_decode($resp, true);
         if (!is_array($data)) return false;
-        if (isset($data['AuthenticationResult'])) return $data['AuthenticationResult'];
+        return $data;
+    }
+
+    /**
+     * Respond to an auth challenge (SMS_MFA, SOFTWARE_TOKEN_MFA, NEW_PASSWORD_REQUIRED, etc.)
+     * $challengeResponses is an associative array of challenge responses, e.g. ['SMS_MFA_CODE' => '123456']
+     * $session is the Session value returned by InitiateAuth.
+     */
+    public function respondToAuthChallenge(string $clientId, string $challengeName, array $challengeResponses, string $session = null): array|false
+    {
+        $url = $this->cognitoEndpoint;
+        $payload = [
+            'ClientId' => $clientId,
+            'ChallengeName' => $challengeName,
+            'ChallengeResponses' => $challengeResponses
+        ];
+        if (!empty($session)) $payload['Session'] = $session;
+
+        $resp = $this->postJson($url, json_encode($payload), 'AWSCognitoIdentityProviderService.RespondToAuthChallenge');
+        if ($resp === false) return false;
+        $data = json_decode($resp, true);
+        if (!is_array($data)) return false;
         return $data;
     }
 
@@ -82,7 +93,6 @@ class VeoliaNouveauAuth
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($resp === false || ($code < 200 || $code >= 400)) {
-            // don't expose sensitive info in logs
             curl_close($ch);
             return false;
         }
